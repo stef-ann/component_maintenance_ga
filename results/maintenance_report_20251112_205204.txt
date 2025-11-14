@@ -1,0 +1,57 @@
+=== Component Maintenance Strategy Analysis ===
+Generated on: 2025-11-12 20:52:04
+
+1. Configuration Parameters
+--------------------------
+β (Beta): 2.50 - Wear-out failure mode
+η (Eta): 50 - Characteristic life parameter
+Population Size: 10
+Number of Generations: 10000
+Mutation Rate: 0.02
+Lambda Factor: 0.7 (reliability weight vs. cost penalties)
+
+2. Performance Metrics
+--------------------
+Final Fitness Score: 14.34
+Average Maintenance Cost: 192.26
+Average Failure Rate: 10.9500
+Total Fitness Improvement: -1.66
+Convergence Generation: 1689
+
+Cost Trend: increased by 5.61 (from 200.06 to 205.67)
+Failure Trend: increased by 0.400 (from 11.300 to 11.700)
+Fitness Stability (σ last 20 gens): 6.17 — moderately volatile
+
+3. Maintenance Strategy Analysis
+------------------------------
+Early-life Maintenance Level (0-20%): 0.490
+Mid-life Maintenance Level (20-70%): 0.505
+Late-life Maintenance Level (70-100%): 0.486
+
+4. Recommendations
+-----------------
+⚠️ High failure rate detected. Consider:
+- Increasing maintenance intensity in high-risk periods
+- Reducing intervals between maintenance actions
+⚠️ High maintenance costs detected. Consider:
+- Optimizing maintenance scheduling
+- Reviewing cost-effectiveness of preventive maintenance
+⚠️ Low overall fitness score. Consider:
+- Reviewing maintenance strategy fundamentals
+- Adjusting cost-reliability trade-off parameters
+
+5. Summary
+---------
+❌ NEEDS IMPROVEMENT: Strategy requires significant optimization
+
+6. Conclusion
+------------
+Reliability increased by 0.400 while costs increased by 5.61, indicating a moderately volatile balance between risk and spend.
+The strategy leans on mid-life interventions (avg intensity 0.505); consider redistributing effort if other life stages show lagging health.
+Volatility in late generations suggests tuning mutation/population settings for smoother convergence.
+
+7. GA Self-Optimization
+---------------------
+Adaptive Mutation Rate: 0.040 (base 0.02)
+Adaptive Crossover Rate: 0.950 (base 0.8)
+Rates expand when fitness plateaus and cool once improvements resume, providing self-optimization without manual tuning.

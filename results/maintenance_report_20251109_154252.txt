@@ -1,0 +1,38 @@
+=== Component Maintenance Strategy Analysis ===
+Generated on: 2025-11-09 15:42:52
+
+1. Configuration Parameters
+--------------------------
+β (Beta): 0.70 - Early-life failure mode
+η (Eta): 50 - Characteristic life parameter
+Population Size: 50
+Number of Generations: 100
+Mutation Rate: 0.2
+Lambda Factor: 0.7
+
+2. Performance Metrics
+--------------------
+Final Fitness Score: 51.39
+Average Maintenance Cost: 22.16
+Average Failure Rate: 1.2670
+Total Fitness Improvement: 25.43
+Convergence Generation: 100
+
+3. Maintenance Strategy Analysis
+------------------------------
+Early-life Maintenance Level (0-20%): 0.512
+Mid-life Maintenance Level (20-70%): 0.493
+Late-life Maintenance Level (70-100%): 0.474
+
+4. Recommendations
+-----------------
+⚠️ High failure rate detected. Consider:
+- Increasing maintenance intensity in high-risk periods
+- Reducing intervals between maintenance actions
+⚠️ Slow convergence detected. Consider:
+- Increasing population size
+- Adjusting mutation rate
+
+5. Summary
+---------
+🟨 ACCEPTABLE: Strategy works but has room for improvement

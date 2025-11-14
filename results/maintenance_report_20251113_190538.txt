@@ -1,0 +1,57 @@
+=== Component Maintenance Strategy Analysis ===
+Generated on: 2025-11-13 19:05:38
+
+1. Configuration Parameters
+--------------------------
+β (Beta): 2.50 - Wear-out failure mode
+η (Eta): 50 - Characteristic life parameter
+Population Size: 1000
+Number of Generations: 10
+Mutation Rate: 0.02
+Lambda Factor: 0.7 (reliability weight vs. cost penalties)
+
+2. Performance Metrics
+--------------------
+Final Fitness Score: 41.28
+Average Maintenance Cost: 204.15
+Average Failure Rate: 11.6630
+Total Fitness Improvement: 4.47
+Convergence Generation: 10
+
+Cost Trend: decreased by 16.19 (from 213.25 to 197.06)
+Failure Trend: decreased by 0.925 (from 12.181 to 11.256)
+Fitness Stability (σ last 20 gens): 4.27 — stable
+
+3. Maintenance Strategy Analysis
+------------------------------
+Early-life Maintenance Level (0-20%): 0.517
+Mid-life Maintenance Level (20-70%): 0.492
+Late-life Maintenance Level (70-100%): 0.472
+
+4. Recommendations
+-----------------
+⚠️ High failure rate detected. Consider:
+- Increasing maintenance intensity in high-risk periods
+- Reducing intervals between maintenance actions
+⚠️ High maintenance costs detected. Consider:
+- Optimizing maintenance scheduling
+- Reviewing cost-effectiveness of preventive maintenance
+⚠️ Slow convergence detected. Consider:
+- Increasing population size
+- Adjusting mutation rate
+
+5. Summary
+---------
+🟨 ACCEPTABLE: Strategy works but has room for improvement
+
+6. Conclusion
+------------
+Reliability decreased by 0.925 while costs decreased by 16.19, indicating a stable balance between risk and spend.
+The strategy leans on early-life interventions (avg intensity 0.517); consider redistributing effort if other life stages show lagging health.
+Convergence behavior is consistent, so further gains likely require parameter sweeps rather than GA tuning.
+
+7. GA Self-Optimization
+---------------------
+Adaptive Mutation Rate: 0.020 (base 0.02)
+Adaptive Crossover Rate: 0.817 (base 0.8)
+Rates expand when fitness plateaus and cool once improvements resume, providing self-optimization without manual tuning.

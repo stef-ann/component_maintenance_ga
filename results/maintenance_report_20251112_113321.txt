@@ -1,0 +1,54 @@
+=== Component Maintenance Strategy Analysis ===
+Generated on: 2025-11-12 11:33:21
+
+1. Configuration Parameters
+--------------------------
+β (Beta): 2.50 - Wear-out failure mode
+η (Eta): 50 - Characteristic life parameter
+Population Size: 100
+Number of Generations: 1000
+Mutation Rate: 0.02
+Lambda Factor: 0.7 (reliability weight vs. cost penalties)
+
+2. Performance Metrics
+--------------------
+Final Fitness Score: 40.44
+Average Maintenance Cost: 149.03
+Average Failure Rate: 8.5230
+Total Fitness Improvement: 18.66
+Convergence Generation: 138
+
+Cost Trend: decreased by 65.17 (from 215.29 to 150.12)
+Failure Trend: decreased by 3.690 (from 12.320 to 8.630)
+Fitness Stability (σ last 20 gens): 4.44 — stable
+
+3. Maintenance Strategy Analysis
+------------------------------
+Early-life Maintenance Level (0-20%): 0.450
+Mid-life Maintenance Level (20-70%): 0.535
+Late-life Maintenance Level (70-100%): 0.526
+
+4. Recommendations
+-----------------
+⚠️ High failure rate detected. Consider:
+- Increasing maintenance intensity in high-risk periods
+- Reducing intervals between maintenance actions
+⚠️ High maintenance costs detected. Consider:
+- Optimizing maintenance scheduling
+- Reviewing cost-effectiveness of preventive maintenance
+
+5. Summary
+---------
+🟨 ACCEPTABLE: Strategy works but has room for improvement
+
+6. Conclusion
+------------
+Reliability decreased by 3.690 while costs decreased by 65.17, indicating a stable balance between risk and spend.
+The strategy leans on mid-life interventions (avg intensity 0.535); consider redistributing effort if other life stages show lagging health.
+Convergence behavior is consistent, so further gains likely require parameter sweeps rather than GA tuning.
+
+7. GA Self-Optimization
+---------------------
+Adaptive Mutation Rate: 0.040 (base 0.02)
+Adaptive Crossover Rate: 0.950 (base 0.8)
+Rates expand when fitness plateaus and cool once improvements resume, providing self-optimization without manual tuning.

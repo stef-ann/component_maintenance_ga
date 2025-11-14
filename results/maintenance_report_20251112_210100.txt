@@ -1,0 +1,51 @@
+=== Component Maintenance Strategy Analysis ===
+Generated on: 2025-11-12 21:01:00
+
+1. Configuration Parameters
+--------------------------
+β (Beta): 2.50 - Wear-out failure mode
+η (Eta): 50 - Characteristic life parameter
+Population Size: 10
+Number of Generations: 10000
+Mutation Rate: 0.02
+Lambda Factor: 0.7 (reliability weight vs. cost penalties)
+
+2. Performance Metrics
+--------------------
+Final Fitness Score: 19.75
+Average Maintenance Cost: 121.17
+Average Failure Rate: 6.9500
+Total Fitness Improvement: 4.93
+Convergence Generation: 132
+
+Cost Trend: decreased by 8.60 (from 123.12 to 114.52)
+Failure Trend: decreased by 0.333 (from 7.000 to 6.667)
+Fitness Stability (σ last 20 gens): 4.28 — stable
+
+3. Maintenance Strategy Analysis
+------------------------------
+Early-life Maintenance Level (0-20%): 0.535
+Mid-life Maintenance Level (20-70%): 0.524
+Late-life Maintenance Level (70-100%): 0.531
+
+4. Recommendations
+-----------------
+⚠️ High failure rate detected. Consider:
+- Increasing maintenance intensity in high-risk periods
+- Reducing intervals between maintenance actions
+⚠️ High maintenance costs detected. Consider:
+- Optimizing maintenance scheduling
+- Reviewing cost-effectiveness of preventive maintenance
+⚠️ Low overall fitness score. Consider:
+- Reviewing maintenance strategy fundamentals
+- Adjusting cost-reliability trade-off parameters
+
+5. Summary
+---------
+❌ NEEDS IMPROVEMENT: Strategy requires significant optimization
+
+6. Conclusion
+------------
+Reliability decreased by 0.333 while costs decreased by 8.60, indicating a stable balance between risk and spend.
+The strategy leans on early-life interventions (avg intensity 0.535); consider redistributing effort if other life stages show lagging health.
+Convergence behavior is consistent, so further gains likely require parameter sweeps rather than GA tuning.
