@@ -4,8 +4,8 @@ TIME_STEPS = 100
 LAMBDA_FACTOR = 0.7  # weight for reliability gain vs cost
 
 # --- Performance requirement model ---
-PERFORMANCE_TARGET = 0.65  # desired normalized health level
-PERFORMANCE_TOLERANCE = 0.05  # slack before the requirement triggers
+PERFORMANCE_TARGET = 0.55  # desired normalized health level
+PERFORMANCE_TOLERANCE = 0.35  # slack before the requirement triggers
 RELIABILITY_REQUIREMENT = 0.8  # minimum (1 - fail probability)
 REQUIREMENT_PENALTY_SCALE = 12.0  # converts requirement gap into extra penalty
 
@@ -20,12 +20,12 @@ SEED = 42
 
 # --- CMA-ES parameters ---
 CMA_SIGMA = 0.2
-CMA_POPULATION = 80  # lambda (population size)
+CMA_POPULATION = 200  # lambda (population size)
 CMA_GENERATIONS = 200
-CMA_EVAL_REPEATS = 3  # Monte Carlo samples per individual
+CMA_EVAL_REPEATS = 15  # Monte Carlo samples per individual
 
 # --- Weibull Reliability Model Parameters ---
 # β (shape): <1 early-life, =1 random, >1 wear-out
-BETA = 1.0    # try 0.7 (early), 1.0 (random), 2.5 (wear-out)
+BETA = 1.5    # try 0.7 (early), 1.0 (random), 2.5 (wear-out)
 # η (scale): characteristic life (larger η = longer component lifespan)
-ETA = 50
+ETA = 300
