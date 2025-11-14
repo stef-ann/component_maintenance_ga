@@ -1,32 +1,49 @@
 import numpy as np
+import torch
+
 from config import LAMBDA_FACTOR, INITIAL_WATER_LEVEL, TIME_STEPS
-from src.failure_models import failure_probability_from_health
 from config import BETA, ETA
+from src.failure_models import failure_probability_from_health
+from src.utils import get_torch_device
+
+DEVICE = get_torch_device()
 
 
+def _rand_uniform(device, low, high):
+    return torch.empty((), device=device).uniform_(low, high)
 
-"H represents health (water level height)"
-"inflow represents maintenance actions, rate (water inflow)"
-"outflow represents degradation/failure rate (water outflow)"
 
 def simulate_component(strategy):
-    H = INITIAL_WATER_LEVEL
-    prev_health = H
-    total_cost = 0
-    failures = 0
-    health_history = []
+    """Simulate a maintenance strategy using tensor operations."""
 
-    for t, (inflow, outflow) in enumerate(strategy):
-        inflow = np.clip(inflow, 0, 1)
-        outflow = np.clip(outflow, 0, 1)
+    if not isinstance(strategy, torch.Tensor):
+        strategy_tensor = torch.as_tensor(
+            strategy,
+            dtype=torch.float32,
+            device=DEVICE,
+        )
+    else:
+        strategy_tensor = strategy.to(dtype=torch.float32)
 
-        # Natural degradation + maintenance
-        degradation = outflow * np.random.uniform(0.8, 1.2)
-        maintenance = inflow * np.random.uniform(0.8, 1.2)
-        H += (maintenance - degradation) * 5 - inflow * 0.5
-        H = np.clip(H, 0, 100)
+    device = strategy_tensor.device
+    strategy_tensor = torch.clamp(strategy_tensor, 0.0, 1.0)
 
-        # --- Failure mechanics ---
+    H = torch.tensor(float(INITIAL_WATER_LEVEL), device=device)
+    prev_health = H.clone()
+    total_cost = torch.tensor(0.0, device=device)
+    failures = torch.tensor(0.0, device=device)
+    horizon = strategy_tensor.shape[0]
+    health_history = torch.empty(horizon, device=device)
+
+    for t in range(horizon):
+        inflow = strategy_tensor[t, 0].clamp(0.0, 1.0)
+        outflow = strategy_tensor[t, 1].clamp(0.0, 1.0)
+
+        maintenance = inflow * _rand_uniform(device, 0.8, 1.2)
+        degradation = outflow * _rand_uniform(device, 0.8, 1.2)
+        H = H + (maintenance - degradation) * 5 - inflow * 0.5
+        H = H.clamp(0.0, 100.0)
+
         fail_prob = failure_probability_from_health(
             H,
             t,
@@ -34,31 +51,34 @@ def simulate_component(strategy):
             eta=ETA,
             previous_health=prev_health,
         )
-        if np.random.rand() < fail_prob:
-            failures += 1
-            repair_cost = 10 + np.random.uniform(0, 5)
-            downtime_penalty = 5
-            H = np.clip(H + np.random.uniform(20, 50), 0, 100)
+
+        if (torch.rand((), device=device) < fail_prob).item():
+            failures += 1.0
+            repair_cost = 10.0 + _rand_uniform(device, 0.0, 5.0)
+            downtime_penalty = torch.tensor(5.0, device=device)
+            H = torch.clamp(
+                H + _rand_uniform(device, 20.0, 50.0),
+                0.0,
+                100.0,
+            )
             total_cost += repair_cost + downtime_penalty
 
-        health_history.append(H)
-        prev_health = H
+        health_history[t] = H
+        prev_health = H.clone()
 
-    # --- Compute overall fitness with lambda factor ---
-    mean_health = np.mean(health_history)
-    stability_penalty = np.var(health_history)
+    mean_health = health_history.mean()
+    stability_penalty = torch.var(health_history, unbiased=False)
 
     reliability_component = mean_health - 0.1 * stability_penalty
-    cost_component = total_cost + 5 * failures
+    cost_component = total_cost + 5.0 * failures
 
-    fitness = (
-        LAMBDA_FACTOR * reliability_component
-        - (1 - LAMBDA_FACTOR) * cost_component
+    fitness = LAMBDA_FACTOR * reliability_component - (1 - LAMBDA_FACTOR) * cost_component
+
+    return (
+        float(fitness.item()),
+        float(total_cost.item()),
+        float(failures.item()),
     )
-
-    # ✅ Return all three metrics
-    return fitness, total_cost, failures
-
 
 
 def failure_probability(health):
@@ -67,4 +87,6 @@ def failure_probability(health):
     When health drops below 30, failure chance rises sharply.
     """
 
+    if isinstance(health, torch.Tensor):
+        return torch.exp(-0.05 * health)
     return np.exp(-0.05 * health)  # lower health → higher failure prob

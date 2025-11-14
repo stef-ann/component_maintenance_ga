@@ -1,18 +1,31 @@
 import numpy as np
-from src.tank_model import simulate_component
+import torch
+
 from config import (
     POPULATION_SIZE,
     TIME_STEPS,
     NUM_GENERATIONS,
     MUTATION_RATE,
     CROSSOVER_RATE,
+    SEED,
 )
 from config import BETA, ETA
+from src.tank_model import simulate_component
+from src.utils import get_torch_device
 
 
 class ComponentGA:
     def __init__(self):
-        self.population = np.random.rand(POPULATION_SIZE, TIME_STEPS, 2)
+        self.device = get_torch_device()
+        torch.manual_seed(SEED)
+        np.random.seed(SEED)
+
+        self.population = torch.rand(
+            POPULATION_SIZE,
+            TIME_STEPS,
+            2,
+            device=self.device,
+        )
         self.best_history = []
         self.best_so_far = -np.inf
         self.stagnant_generations = 0
@@ -27,7 +40,7 @@ class ComponentGA:
         failure_history = []
 
         for gen in range(NUM_GENERATIONS):
-            fitness, costs, failures = [], [], []
+            fitness_values, costs, failures = [], [], []
 
             # --- Run simulation for each chromosome ---
             for ind in self.population:
@@ -39,29 +52,32 @@ class ComponentGA:
                 else:
                     f, c, fl = result, 0, 0
 
-                fitness.append(f)
+                fitness_values.append(f)
                 costs.append(c)
                 failures.append(fl)
 
             # --- Collect generation stats ---
-            fitness = np.array(fitness)
-            best = np.max(fitness)
+            fitness_tensor = torch.tensor(fitness_values, device=self.device)
+            best = float(torch.max(fitness_tensor).item())
             self.best_history.append(best)
-            cost_history.append(np.mean(costs))
-            failure_history.append(np.mean(failures))
+            cost_history.append(float(np.mean(costs)))
+            failure_history.append(float(np.mean(failures)))
 
             # --- Self-optimize GA hyperparameters ---
             self._self_optimize(best)
 
             # --- Selection + reproduction (same as before) ---
-            survivors = self.population[np.argsort(fitness)[::-1][:POPULATION_SIZE // 2]]
+            ranked_indices = torch.argsort(fitness_tensor, descending=True)
+            survivors = self.population.index_select(0, ranked_indices[: POPULATION_SIZE // 2])
             children = self._crossover(survivors)
             children = self._mutate(children)
-            self.population = np.vstack((survivors, children))
+            self.population = torch.cat((survivors, children), dim=0)
 
-            print(f"Gen {gen+1}/{NUM_GENERATIONS} | β={BETA:.2f}, η={ETA} | "
+            print(
+                f"Gen {gen+1}/{NUM_GENERATIONS} | β={BETA:.2f}, η={ETA} | "
                 f"Best Fitness: {best:.2f} | Avg Cost: {np.mean(costs):.2f} | Avg Failures: {np.mean(failures):.2f} | "
-                f"Mut: {self.mutation_rate:.3f} | Cross: {self.crossover_rate:.2f}")
+                f"Mut: {self.mutation_rate:.3f} | Cross: {self.crossover_rate:.2f}"
+            )
 
 
         # Return multiple histories so you can plot them later
@@ -69,22 +85,44 @@ class ComponentGA:
 
 
     def _crossover(self, parents):
-        offspring = []
-        for _ in range(len(parents)):
-            p1, p2 = parents[np.random.randint(len(parents), size=2)]
-            if np.random.rand() < self.crossover_rate:
-                cut = np.random.randint(1, TIME_STEPS - 1)
-                child = np.vstack((p1[:cut], p2[cut:]))
-            else:
-                child = p1.copy()
-            offspring.append(child)
-        return np.array(offspring)
+        num_parents = parents.shape[0]
+        if num_parents == 0:
+            return parents
+
+        pair_indices = torch.randint(
+            0,
+            num_parents,
+            (num_parents, 2),
+            device=self.device,
+        )
+        offspring = parents[pair_indices[:, 0]].clone()
+
+        crossover_mask = torch.rand(num_parents, device=self.device) < self.crossover_rate
+        if TIME_STEPS <= 2:
+            return offspring
+
+        cut_points = torch.randint(
+            1,
+            TIME_STEPS - 1,
+            (num_parents,),
+            device=self.device,
+        )
+        crossover_indices = torch.nonzero(crossover_mask, as_tuple=False).flatten()
+        for idx in crossover_indices.tolist():
+            cut = int(cut_points[idx].item())
+            donor = parents[pair_indices[idx, 1]]
+            offspring[idx, cut:] = donor[cut:]
+
+        return offspring
 
     def _mutate(self, offspring):
-        mask = np.random.rand(*offspring.shape) < self.mutation_rate
-        offspring[mask] += np.random.randn(*offspring[mask].shape) * 0.1
-        np.clip(offspring, 0, 1, out=offspring)
-        return offspring
+        if offspring.numel() == 0:
+            return offspring
+
+        noise = torch.randn_like(offspring) * 0.1
+        mask = (torch.rand_like(offspring) < self.mutation_rate).to(offspring.dtype)
+        mutated = torch.clamp(offspring + noise * mask, 0.0, 1.0)
+        return mutated
 
     def _self_optimize(self, current_best):
         improvement_threshold = 1e-3

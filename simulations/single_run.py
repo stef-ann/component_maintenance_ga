@@ -43,11 +43,12 @@ def main():
     plt.close()
 
     # Generate and save analysis report
+    best_strategy = ga.population[0].detach().cpu().numpy()
     report_path = generate_maintenance_report(
         fitness_hist=fitness_hist,
         cost_hist=cost_hist,
         fail_hist=fail_hist,
-        best_strategy=ga.population[0],  # Best strategy from final population
+        best_strategy=best_strategy,  # Best strategy from final population
         final_mutation_rate=ga.mutation_rate,
         final_crossover_rate=ga.crossover_rate,
     )
